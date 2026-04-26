@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Цифровая Безопасность & OpSec</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        void: '#060a0e',
+        slate: {
+          950: '#0a0f16',
+          900: '#0d1420',
+          850: '#111a28',
+          800: '#152030',
+        },
+        emerald: { accent: '#10d9a0' },
+        cyan: { accent: '#22d3ee' },
+      },
+      fontFamily: {
+        display: ['Syne', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
+        body: ['DM Sans', 'sans-serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: #060a0e;
+    font-family: 'DM Sans', sans-serif;
+    color: #cbd5e1;
+    margin: 0;
+	padding-top: 80px; /* Space for fixed header */
+  }
+  
+  /* ---------- HEADER ---------- */
+  header {
+    background: rgba(6, 10, 14, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .nav-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #94a3b8;
+    transition: color 0.3s;
+  }
+  .nav-link:hover { color: #10d9a0; }
+  
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,217,160,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(34,211,238,0.07) 0%, transparent 60%),
+                #060a0e;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(16,217,160,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16,217,160,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 0%, black, transparent 80%);
+  }
+  .hero-line {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(16,217,160,0.4), transparent);
+  }
+
+  /* ---------- ACCENT COLORS ---------- */
+  .text-accent { color: #10d9a0; }
+  .text-cyan { color: #22d3ee; }
+  .bg-accent { background-color: #10d9a0; }
+  .border-accent { border-color: rgba(16,217,160,0.3); }
+
+  /* ---------- BADGE ---------- */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 100px;
+    border: 1px solid rgba(16,217,160,0.35);
+    background: rgba(16,217,160,0.08);
+    color: #10d9a0;
+  }
+  .badge-cyan {
+    border-color: rgba(34,211,238,0.3);
+    background: rgba(34,211,238,0.07);
+    color: #22d3ee;
+  }
+
+  /* ---------- PACKAGE CARDS ---------- */
+  .pkg-card {
+    background: #0d1420;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+  }
+  .pkg-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .pkg-card:hover { border-color: rgba(16,217,160,0.25); transform: translateY(-3px); }
+  .pkg-card:hover::before { opacity: 1; }
+  .pkg-card.accent-green::before { background: linear-gradient(90deg, transparent, #10d9a0, transparent); }
+  .pkg-card.accent-cyan::before  { background: linear-gradient(90deg, transparent, #22d3ee, transparent); }
+  .pkg-card.accent-violet::before { background: linear-gradient(90deg, transparent, #a78bfa, transparent); }
+  .pkg-card.accent-amber::before { background: linear-gradient(90deg, transparent, #fbbf24, transparent); }
+
+  .pkg-header {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .pkg-body { padding: 24px 28px; }
+
+  /* ---------- ICON CIRCLES ---------- */
+  .icon-circle {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .ic-green  { background: rgba(16,217,160,0.12); color: #10d9a0; border: 1px solid rgba(16,217,160,0.2); }
+  .ic-cyan   { background: rgba(34,211,238,0.10); color: #22d3ee; border: 1px solid rgba(34,211,238,0.2); }
+  .ic-violet { background: rgba(167,139,250,0.10); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
+  .ic-amber  { background: rgba(251,191,36,0.10); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+  .ic-rose   { background: rgba(251,113,133,0.10); color: #fb7185; border: 1px solid rgba(251,113,133,0.2); }
+
+  /* ---------- FEATURE ROWS ---------- */
+  .feature-row {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .feature-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .feature-row .icon-circle { margin-top: 2px; }
+  .feature-title { font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px; color: #e2e8f0; margin: 0 0 4px; }
+  .feature-desc { font-size: 13px; line-height: 1.6; color: #64748b; margin: 0; }
+
+  /* ---------- SUB-ITEM LISTS ---------- */
+  .sub-list { list-style: none; padding: 0; margin: 10px 0 0; }
+  .sub-list li {
+    font-size: 13px; color: #64748b; line-height: 1.6;
+    padding: 3px 0 3px 16px; position: relative;
+  }
+  .sub-list li::before {
+    content: '—'; position: absolute; left: 0; color: #10d9a0; font-size: 11px;
+  }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #10d9a0; margin-bottom: 8px;
+  }
+  .section-h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(28px, 4vw, 40px);
+    color: #f1f5f9; line-height: 1.15; margin: 0 0 16px;
+  }
+  .section-lead { font-size: 16px; color: #64748b; line-height: 1.7; max-width: 600px; }
+
+  /* ---------- DIVIDER ---------- */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); margin: 72px 0; }
+
+  /* ---------- SPECIAL BLOCK ---------- */
+  .special-block {
+    background: #0d1420; border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 12px;
+    transition: border-color 0.3s;
+  }
+  .special-block:hover { border-color: rgba(34,211,238,0.2); }
+  .special-block-title {
+    font-family: 'DM Sans', sans-serif; font-weight: 600;
+    font-size: 15px; color: #e2e8f0; margin: 0 0 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .special-block-body { font-size: 13px; color: #64748b; line-height: 1.7; }
+  .special-block-body strong { color: #94a3b8; font-weight: 500; }
+
+  /* ---------- DOUBLE VPN CALLOUT ---------- */
+  .vpn-callout {
+    background: linear-gradient(135deg, rgba(16,217,160,0.06), rgba(34,211,238,0.04));
+    border: 1px solid rgba(16,217,160,0.2);
+    border-radius: 12px; padding: 20px 24px;
+    margin-top: 20px;
+  }
+  .vpn-callout-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+    color: #10d9a0; margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .vpn-detail { font-size: 13px; color: #64748b; line-height: 1.7; }
+  .vpn-detail + .vpn-detail { margin-top: 8px; }
+  .vpn-detail strong { color: #94a3b8; font-weight: 500; }
+
+  /* ---------- PACKAGE NUMBER ---------- */
+  .pkg-number {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500;
+    color: #334155; letter-spacing: 0.1em;
+  }
+  .pkg-title {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(22px, 3vw, 28px); color: #f1f5f9; margin: 4px 0 8px; line-height: 1.1;
+  }
+  .pkg-subtitle { font-size: 13px; color: #475569; line-height: 1.6; }
+
+  /* ---------- COMMITMENT CARD ---------- */
+  .commit-card {
+    background: #0d1420;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; padding: 20px;
+    display: flex; gap: 14px; align-items: flex-start;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .commit-card:hover {
+    border-color: rgba(16,217,160,0.2);
+    background: rgba(16,217,160,0.03);
+  }
+  .commit-num {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500;
+    color: #10d9a0; min-width: 28px; padding-top: 2px;
+  }
+  .commit-title { font-weight: 600; font-size: 14px; color: #e2e8f0; margin: 0 0 4px; }
+  .commit-desc { font-size: 13px; color: #64748b; line-height: 1.6; margin: 0; }
+
+  /* ---------- FOOTER ---------- */
+  .footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background: #060a0e;
+  }
+
+  /* ---------- SECTION FADE-IN ---------- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.7s ease both; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+  .delay-5 { animation-delay: 0.5s; }
+
+  /* ---------- HERO GLOW PULSE ---------- */
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  .glow-pulse { animation: pulse-glow 3s ease-in-out infinite; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 640px) {
+    .pkg-header, .pkg-body { padding-left: 18px; padding-right: 18px; }
+    .special-block { padding: 16px 18px; }
+    .vpn-callout { padding: 16px 18px; }
+  }
+  
+  /* ---------- CONTACT SECTION STYLES ---------- */
+.contact-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 50% 50%, rgba(16, 217, 160, 0.05) 0%, transparent 80%);
+    pointer-events: none;
+}
+
+.input-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #f1f5f9;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: rgba(16, 217, 160, 0.5);
+    background: rgba(16, 217, 160, 0.03);
+    box-shadow: 0 0 20px rgba(16, 217, 160, 0.1);
+}
+
+.contact-method-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: rgba(13, 20, 32, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.contact-method-card:hover {
+    transform: translateX(8px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.contact-method-card.tg:hover { border-color: rgba(16, 217, 160, 0.4); }
+.contact-method-card.mail:hover { border-color: rgba(34, 211, 238, 0.4); }
+
+.label-mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #475569;
+    margin-bottom: 8px;
+    display: block;
+}
+ 
+ @media (max-width: 640px) {
+    .section-h2 {
+        font-size: 28px !important;
+        text-align: center;
+    }
+    .section-lead {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .hero {
+        padding-top: 100px;
+        text-align: center;
+    }
+    .hero flex {
+        justify-content: center;
+    }
+    /* Делаем "шаги" процесса более компактными на мобилках */
+    #process .group {
+        text-align: center;
+    }
+    #process .flex {
+        justify-content: center;
+    }
+}
+
+/* Эффект свечения при наведении на кнопки связи */
+.contact-method-card:hover, a[href^="https://t.me"]:hover, a[href^="mailto"]:hover {
+    box-shadow: 0 0 30px rgba(16, 217, 160, 0.05);
+}
+</style>
+</head>
+<body>
+
+<header class="fixed top-0 left-0 right-0 z-[100]">
+  <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="font-display font-extrabold text-lg tracking-tight text-slate-100 uppercase hidden sm:block">// защита  <span class="text-accent">и приватность</span></span>
+    </div>
+    
+    <nav class="hidden md:flex items-center gap-8">
+      <a href="#packages" class="nav-link">Пакеты</a>
+      <a href="#special" class="nav-link">Технологии</a>
+      <a href="#process" class="nav-link">Процесс</a>
+      <a href="#contact" class="nav-link">Контакты</a>
+    </nav>
+
+    <a href="#contact" class="bg-accent text-void font-display font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-full hover:opacity-80 transition-opacity">
+      Консультация
+    </a>
+  </div>
+</header>
+<!-- ══════════════════════════════════════ HERO ══════════════════════════════════════ -->
+<section class="hero min-h-[88vh] flex flex-col justify-center px-6 py-24 relative">
+  <div class="hero-grid"></div>
+  <div class="hero-line"></div>
+
+  <!-- Top bar -->
+  <div class="absolute top-0 left-0 right-0 px-6 sm:px-12 py-6 flex items-center justify-between">
+    <span class="font-mono text-xs tracking-widest text-slate-600 uppercase">Digital Security</span>
+    <span class="badge glow-pulse"><i class="fa-solid fa-circle text-[8px]"></i> Worldwide</span>
+  </div>
+
+  <div class="max-w-5xl mx-auto w-full relative z-10">
+    <!-- Eyebrow -->
+    <div class="fade-up mb-6">
+      <span class="badge"><i class="fa-solid fa-shield-halved text-[10px]"></i> Комплексные решения</span>
+    </div>
+
+    <!-- Main headline -->
+    <h1 class="fade-up delay-1" style="font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(38px,7vw,88px); line-height:1.0; color:#f1f5f9; margin:0 0 24px;">
+      Цифровая<br>
+      <span style="color:#10d9a0;">Безопасность</span><br>
+      <span style="color:#94a3b8; font-weight:400; font-size:0.55em;">& Операционная защита</span>
+    </h1>
+
+    <!-- Sub -->
+    <p class="fade-up delay-2" style="font-size:clamp(15px,2vw,18px); color:#64748b; max-width:560px; line-height:1.75; margin:0 0 40px;">
+      Для клиентов с высоким уровнем риска, которым требуются комплексные экосистемы, где железо, программное обеспечение и поведение работают как единое целое. Индивидуальный подбор конфигурации под ваш профиль угроз.
+    </p>
+
+    <!-- CTA pills -->
+    <div class="fade-up delay-3 flex flex-wrap gap-3">
+      <a href="#packages" style="display:inline-flex;align-items:center;gap:8px;background:#10d9a0;color:#060a0e;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;padding:12px 24px;border-radius:100px;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+        <i class="fa-solid fa-layer-group text-[13px]"></i> Смотреть пакеты
+      </a>
+      <a href="#special" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:#94a3b8;font-family:'Syne',sans-serif;font-weight:600;font-size:14px;padding:12px 24px;border-radius:100px;border:1px solid rgba(255,255,255,0.1);text-decoration:none;transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='rgba(16,217,160,0.4)';this.style.color='#10d9a0'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='#94a3b8'">
+        <i class="fa-solid fa-sliders text-[13px]"></i> Спецрешения
+      </a>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="fade-up delay-4 mt-16 pt-12 border-t border-white/[0.06] grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#10d9a0;">4</div>
+        <div style="font-size:12px;color:#475569;margin-top:2px;">Пакета защиты</div>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#22d3ee;">10+</div>
+        <div style="font-size:12px;color:#475569;margin-top:2px;">Спецрешений</div>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#a78bfa;">1 мес</div>
+        <div style="font-size:12px;color:#475569;margin-top:2px;">Техподдержка</div>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#fbbf24;">2–4 ч</div>
+        <div style="font-size:12px;color:#475569;margin-top:2px;">Обучение</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════ PACKAGES ══════════════════════════════════ -->
+<section id="packages" class="px-6 sm:px-12 py-24 max-w-7xl mx-auto">
+  <div class="mb-14">
+    <p class="section-tag"><i class="fa-solid fa-boxes-stacked mr-2"></i>Тарифы и комплекты</p>
+    <h2 class="section-h2">Готовые пакеты защиты</h2>
+    <p class="section-lead">Каждый пакет — сбалансированная экосистема. Вы можете взять готовое решение или скомбинировать элементы разных пакетов под ваши задачи.</p>
+  </div>
+
+  <!-- ─── PACKAGE 1 ─── -->
+  <div class="pkg-card accent-green mb-6">
+    <div class="pkg-header">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div class="pkg-number">ПАКЕТ 01</div>
+          <div class="pkg-title">«Цифровая Крепость»</div>
+          <div class="font-mono text-xs text-[#10d9a0] tracking-wider uppercase mb-2">Home &amp; Office</div>
+          <p class="pkg-subtitle max-w-lg">Для тех, кто хочет сделать свой дом или офис зоной, недосягаемой для провайдеров, хакеров и физического перехвата трафика.</p>
+        </div>
+        <div class="icon-circle ic-green" style="width:52px;height:52px;font-size:22px;border-radius:14px;">
+          <i class="fa-solid fa-house-lock"></i>
+        </div>
+      </div>
+    </div>
+    <div class="pkg-body">
+      <div class="grid md:grid-cols-2 gap-x-8 gap-y-0">
+
+        <!-- Hardware column -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-microchip"></i></div>
+            <span class="text-sm font-semibold text-slate-300 uppercase tracking-widest" style="font-size:11px;font-family:'IBM Plex Mono',monospace;">Железо (Hardware)</span>
+          </div>
+          <div class="feature-row">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-wifi"></i></div>
+            <div>
+              <p class="feature-title">Роутер: MikroTik RB5009 + UniFi 6 Lite</p>
+              <p class="feature-desc">Основной шлюз на базе MikroTik RB5009 в связке с точками доступа UniFi 6 Lite — для полного покрытия и управления периметром сети.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-server"></i></div>
+            <div>
+              <p class="feature-title">Сервер: Raspberry Pi 5 (8GB) + NVMe</p>
+              <p class="feature-desc">Компактный домашний сервер на Raspberry Pi 5 с NVMe-накопителем для хостинга личных сервисов.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-laptop"></i></div>
+            <div>
+              <p class="feature-title">Рабочая станция: Lenovo ThinkPad</p>
+              <p class="feature-desc">С прошитым Coreboot и установленной Qubes OS для максимальной изоляции рабочих процессов.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security column -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-shield-halved"></i></div>
+            <span class="text-sm font-semibold text-slate-300 uppercase tracking-widest" style="font-size:11px;font-family:'IBM Plex Mono',monospace;">Решения по безопасности</span>
+          </div>
+          <div class="feature-row">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-network-wired"></i></div>
+            <div>
+              <p class="feature-title">Сетевой периметр: VLAN-изоляция</p>
+              <p class="feature-desc">Полная изоляция рабочих устройств от умных ламп, ТВ и устройств гостей — всё в отдельных сегментах сети.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-eye-slash"></i></div>
+            <div>
+              <p class="feature-title">Невидимый интернет: Double-VPN + обфускация</p>
+              <p class="feature-desc">Весь домашний трафик принудительно идёт через двойной VPN с обфускацией. Провайдер видит только зашифрованный шум, похожий на обычный HTTPS.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-cloud"></i></div>
+            <div>
+              <p class="feature-title">Собственные сервисы: Vaultwarden + Nextcloud</p>
+              <p class="feature-desc">Личный сервер паролей и личное облако — данные физически находятся в вашей комнате, а не у третьих сторон.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="icon-circle ic-green"><i class="fa-solid fa-filter"></i></div>
+            <div>
+              <p class="feature-title">DNS-фильтрация: AdGuard Home</p>
+              <p class="feature-desc">Полная блокировка телеметрии на уровне железа. Каждая попытка «умных устройств» отправить данные производителю блокируется и отображается в интерфейсе.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VPN Callout -->
+      <div class="vpn-callout mt-6">
+        <div class="vpn-callout-title"><i class="fa-solid fa-link-slash"></i> Личный Double-VPN с обфускацией — входит в пакет</div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <p class="vpn-detail"><strong>Суть:</strong> Частная цепочка из двух независимых серверов в разных странах (напр. Швейцария → Исландия).</p>
+            <p class="vpn-detail"><strong>Как работает:</strong> Первый сервер знает ваш IP, второй — ваш трафик. Ни один из них не обладает полной информацией о вас. Это в 10 раз надёжнее публичных VPN.</p>
+          </div>
+          <div>
+            <p class="vpn-detail"><strong>Обфускация:</strong> Маскировка трафика под обычный HTTPS (провайдер видит «просмотр YouTube», а не VPN).</p>
+            <p class="vpn-detail"><strong>Kill Switch:</strong> Моментальная блокировка интернета при разрыве соединения.</p>
+            <p class="vpn-detail"><strong>Протоколы:</strong> WireGuard / VLESS / Shadowsocks на личных VPS-серверах.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instruction -->
+      <div class="mt-6 p-4 rounded-xl" style="background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.07);">
+        <div class="flex items-center gap-2 mb-2">
+          <i class="fa-solid fa-book-open text-[#10d9a0] text-sm"></i>
+          <span class="text-sm font-semibold text-slate-400" style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;">Инструкция в комплекте</span>
+        </div>
+        <ul class="sub-list">
+          <li>Регламент работы с Qubes OS — разделение задач по «кубам»</li>
+          <li>Правила администрирования домашнего сервера</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── PACKAGE 2 ─── -->
+  <div class="pkg-card accent-cyan mb-6">
+    <div class="pkg-header">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div class="pkg-number">ПАКЕТ 02</div>
+          <div class="pkg-title">«Невидимый Кочевник»</div>
+          <div class="font-mono text-xs text-[#22d3ee] tracking-wider uppercase mb-2">Travel &amp; Mobile OpSec</div>
+          <p class="pkg-subtitle max-w-lg">Для тех, кто постоянно перемещается, пользуется сетями отелей и аэропортов, и хочет быть уверенным, что его местоположение и трафик невозможно вычислить ни цифровыми, ни физическими методами.</p>
+        </div>
+        <div class="icon-circle ic-cyan" style="width:52px;height:52px;font-size:22px;border-radius:14px;">
+          <i class="fa-solid fa-satellite-dish"></i>
+        </div>
+      </div>
+    </div>
+    <div class="pkg-body">
+
+      <!-- Section 1: Hardware -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-microchip"></i></div>
+          <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">1. Аппаратная база</span>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div class="special-block">
+            <div class="special-block-title"><div class="icon-circle ic-cyan" style="width:30px;height:30px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-mobile-screen"></i></div> Смартфон-крепость</div>
+            <div class="special-block-body">Google Pixel 8/9 с установленной <strong>GrapheneOS</strong>. Выбор обусловлен чипом безопасности Titan M2 и возможностью полного контроля над радиомодулями.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><div class="icon-circle ic-cyan" style="width:30px;height:30px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-router"></i></div> Сетевой узел</div>
+            <div class="special-block-body">Мобильный роутер <strong>GL.iNet GL-MT3000 (Beryl AX)</strong> на базе OpenWrt для создания защищённого периметра в любой точке мира.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><div class="icon-circle ic-cyan" style="width:30px;height:30px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-satellite"></i></div> Спутниковый терминал</div>
+            <div class="special-block-body"><strong>Starlink Mini</strong> — компактная станция, работающая от PowerBank, для полной независимости от наземных вышек связи.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><div class="icon-circle ic-cyan" style="width:30px;height:30px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-bag-shopping"></i></div> Физический щит</div>
+            <div class="special-block-body">Комплект сумок Фарадея <strong>Mission Darkness</strong> — режим полной радиотишины (блокировка GSM, GPS, Wi-Fi, Bluetooth).</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><div class="icon-circle ic-cyan" style="width:30px;height:30px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-eye"></i></div> Визуальный фильтр</div>
+            <div class="special-block-body">Профессиональные <strong>Privacy Screens</strong> — экран виден только вам; для соседа в самолёте или камеры дисплей выглядит полностью чёрным.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Connectivity -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-tower-broadcast"></i></div>
+          <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">2. Сетевая невидимость и защита трафика</span>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-sim-card"></i></div>
+          <div>
+            <p class="feature-title">Анонимная связь (No-KYC)</p>
+            <p class="feature-desc">Использование eSIM от провайдеров (например, <strong style="color:#94a3b8;">Silent.link</strong>), не требующих паспортных данных. Ваша личность не привязана к номеру телефона.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-masks-theater"></i></div>
+          <div>
+            <p class="feature-title">Скрытие факта защиты: VLESS / XTLS-Reality</p>
+            <p class="feature-desc">Провайдеры видят обычный VPN и помечают вас как «подозрительного». Наше решение маскирует трафик под обычный просмотр YouTube или видеозвонок. Для систем DPI-анализа вы — обычный пользователь интернета.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-signal"></i></div>
+          <div>
+            <p class="feature-title">Спутниковая независимость: Starlink Mini</p>
+            <p class="feature-desc">Выход в сеть через Starlink Mini исключает пеленгацию сотовыми вышками (триангуляцию). Сигнал идёт вертикально вверх, минуя наземную инфраструктуру контроля связи.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-hotel"></i></div>
+          <div>
+            <p class="feature-title">Travel-периметр в отелях и аэропортах</p>
+            <p class="feature-desc">Ваши устройства подключаются только к вашему роутеру. Роутер сам очищает трафик, меняет DNS и держит активным Kill-switch — если защита упадёт, интернет отключится мгновенно.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VPN Callout -->
+      <div class="vpn-callout mb-6">
+        <div class="vpn-callout-title"><i class="fa-solid fa-link-slash"></i> Личный Double-VPN с обфускацией</div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <p class="vpn-detail"><strong>Суть:</strong> Частная цепочка из двух независимых серверов в разных странах (напр. Швейцария → Исландия).</p>
+            <p class="vpn-detail"><strong>Как работает:</strong> Первый сервер знает ваш IP, второй — ваш трафик. Ни один из них не обладает полной информацией о вас. Это в 10 раз надёжнее публичных VPN.</p>
+          </div>
+          <div>
+            <p class="vpn-detail"><strong>Обфускация:</strong> Маскировка трафика под обычный HTTPS.</p>
+            <p class="vpn-detail"><strong>Kill Switch:</strong> Моментальная блокировка при разрыве соединения.</p>
+            <p class="vpn-detail"><strong>Протоколы:</strong> WireGuard / VLESS / Shadowsocks на личных VPS-серверах. Результат: полная невидимость для провайдера.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Software -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-code"></i></div>
+          <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">3. Глубокий программный харденинг (Software OpSec)</span>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-tower-cell"></i></div>
+          <div>
+            <p class="feature-title">Борьба с пеленгацией (GSM Hardening)</p>
+            <p class="feature-desc">Настройка режима LTE-only (отключает уязвимый протокол 2G, через который работают IMSI-ловушки для перехвата звонков и координат). Постоянная рандомизация MAC-адресов и идентификаторов устройства.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-location-crosshairs"></i></div>
+          <div>
+            <p class="feature-title">Географическая маскировка (System GPS Spoofing)</p>
+            <p class="feature-desc">Глубокая подмена координат на уровне ядра ОС. Устройство транслирует сигналы о нахождении в другой стране. Все приложения (карты, банки, Uber) верят ложным координатам.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-bomb"></i></div>
+          <div>
+            <p class="feature-title">Авто-очистка и Panic PIN</p>
+            <p class="feature-desc">Настройка системы на моментальное уничтожение ключей шифрования и данных при 10 неудачных попытках входа или вводе специального кода под давлением.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Methodology -->
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="icon-circle ic-cyan"><i class="fa-solid fa-book"></i></div>
+          <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">4. Методология и инструкции</span>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-3">
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-volume-xmark text-[#22d3ee] text-sm"></i> Режим Radio-Silent</div>
+            <div class="special-block-body">Обучение правильному использованию сумок Фарадея. Смартфон и ноутбук «исчезают» из радиоэфира во время перемещения между важными точками, что предотвращает построение маршрута вашего движения.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-wifi text-[#22d3ee] text-sm"></i> Безопасный Wi-Fi</div>
+            <div class="special-block-body">Пошаговая схема авторизации в сетях отелей и аэропортов через роутер-посредник, чтобы ваши личные устройства никогда напрямую не взаимодействовали с «грязной» сетью.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-passport text-[#22d3ee] text-sm"></i> Чек-лист «Граница»</div>
+            <div class="special-block-body">Регламент подготовки техники к досмотру: перевод устройств в зашифрованное состояние, скрытие контейнеров данных и временное удаление критических приложений.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result banner -->
+      <div class="mt-6 p-5 rounded-xl text-center" style="background:linear-gradient(135deg,rgba(34,211,238,0.07),rgba(16,217,160,0.05));border:1px solid rgba(34,211,238,0.2);">
+        <i class="fa-solid fa-ghost text-[#22d3ee] text-xl mb-2 block"></i>
+        <p class="text-sm" style="color:#94a3b8;line-height:1.7;">
+          <strong style="color:#e2e8f0;">Результат:</strong> Вы становитесь «цифровым призраком». Ваше устройство не привязано к вашей личности, ваши координаты подменены, ваш трафик невозможно отличить от обычного, а ваше физическое присутствие невозможно отследить через системы сотовой связи.
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── PACKAGE 3 ─── -->
+  <div class="pkg-card accent-violet mb-6">
+    <div class="pkg-header">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div class="pkg-number">ПАКЕТ 03</div>
+          <div class="pkg-title">«Ghost Protocol»</div>
+          <div class="font-mono text-xs text-[#a78bfa] tracking-wider uppercase mb-2">Maximum Protection</div>
+          <p class="pkg-subtitle max-w-lg">Ультимативное решение. Полная автономность и защита от всех видов цифрового и физического трекинга. Всё из Пакетов 1 и 2 плюс расширенный арсенал.</p>
+        </div>
+        <div class="icon-circle ic-violet" style="width:52px;height:52px;font-size:22px;border-radius:14px;">
+          <i class="fa-solid fa-user-secret"></i>
+        </div>
+      </div>
+    </div>
+    <div class="pkg-body">
+
+      <!-- Hardware -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="icon-circle ic-violet"><i class="fa-solid fa-microchip"></i></div>
+          <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">Железо (Hardware)</span>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-3">
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-satellite text-[#a78bfa] text-sm"></i> Starlink Mini в рюкзаке</div>
+            <div class="special-block-body">Всё из Пакетов 1 и 2 плюс Starlink Mini, носимый в рюкзаке, для полной независимости от наземной инфраструктуры связи в любой точке мира.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-key text-[#a78bfa] text-sm"></i> YubiKey 5C NFC × 2</div>
+            <div class="special-block-body">Два аппаратных ключа безопасности — основной и резервный. Физическая аутентификация для доступа ко всей инфраструктуре и расшифровки данных.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-brands fa-bitcoin text-[#a78bfa] text-sm"></i> Холодное хранение</div>
+            <div class="special-block-body"><strong>Coldcard Mk4</strong> для Bitcoin или <strong>Ledger Nano X</strong> — аппаратные кошельки для полностью автономного управления финансами.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workstation Hardening -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="icon-circle ic-violet"><i class="fa-solid fa-shield-virus"></i></div>
+          <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">Ультимативный харденинг ноутбука (Workstation Hardening)</span>
+        </div>
+        <p class="text-sm mb-4" style="color:#64748b;">Превращаем обычный ноутбук в цифровую крепость, защищённую от физического взлома, кражи данных и скрытого шпионажа.</p>
+        <div class="feature-row">
+          <div class="icon-circle ic-violet"><i class="fa-solid fa-layer-group"></i></div>
+          <div>
+            <p class="feature-title">ОС и изоляция: Qubes OS / Hardened Debian</p>
+            <p class="feature-desc">Установка Qubes OS (каждое приложение в отдельном изолированном слое) или Hardened Debian с настроенными политиками AppArmor/SELinux.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-violet"><i class="fa-solid fa-microchip"></i></div>
+          <div>
+            <p class="feature-title">Защита прошивки: Coreboot/Libreboot + TPM 2.0</p>
+            <p class="feature-desc">Установка Coreboot/Libreboot (замена стандартного BIOS на безопасный). Включение Measured Boot (TPM 2.0) и собственных ключей Secure Boot.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-violet"><i class="fa-solid fa-usb"></i></div>
+          <div>
+            <p class="feature-title">Защита портов: USBGuard + аппаратное отключение</p>
+            <p class="feature-desc">Настройка USBGuard для блокировки любых незнакомых USB-устройств. Физическое отключение веб-камеры и микрофона на аппаратном уровне (отключение шлейфов).</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-violet"><i class="fa-solid fa-lock"></i></div>
+          <div>
+            <p class="feature-title">Шифрование: LUKS2 AES-XTS-256 + YubiKey</p>
+            <p class="feature-desc">Использование LUKS2 с алгоритмом AES-XTS-256. Ключ для расшифровки хранится на внешнем аппаратном ключе (YubiKey/Nitrokey). Без ключа данные на ноутбуке — просто цифровой мусор.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security solutions -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="icon-circle ic-violet"><i class="fa-solid fa-gears"></i></div>
+          <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">Решения по безопасности</span>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-brands fa-elementor text-[#a78bfa] text-sm"></i> Собственный Matrix-сервер</div>
+            <div class="special-block-body">Развёртывание персонального сервера мессенджера Matrix/Element. Полная анонимность, регистрация без номера телефона. Вы — единственный владелец своей переписки и метаданных.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-earth-americas text-[#a78bfa] text-sm"></i> Глобальная имитация присутствия</div>
+            <div class="special-block-body">Глубокая подмена геолокации на уровне ядра ОС. Устройство физически в одной точке, но для всех приложений и систем слежки оно находится в другой стране. Подменяются координаты, данные вышек сотовой связи и Wi-Fi окружения.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-satellite text-[#a78bfa] text-sm"></i> Спутниковая независимость</div>
+            <div class="special-block-body">Выход в сеть через Starlink Mini. Трафик идёт сразу на спутник, минуя наземную инфраструктуру.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-circle-nodes text-[#a78bfa] text-sm"></i> Double Layer Anonymity: VPN → Tor</div>
+            <div class="special-block-body">Маршрутизация «Личный VPN → Tor шлюз». Даже если VPN-сервер будет скомпрометирован, ваша личность скрыта сетью Tor.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-coins text-[#a78bfa] text-sm"></i> Финансовый Ghost: Monero</div>
+            <div class="special-block-body">Полная настройка кошельков Monero, интеграция методов оплаты без следов в банковской системе.</div>
+          </div>
+          <div class="special-block">
+            <div class="special-block-title"><i class="fa-solid fa-robot text-[#a78bfa] text-sm"></i> Защита от AI-угроз: Deepfake</div>
+            <div class="special-block-body">Внедрение системы кодовых слов для связи с близкими — защита от Deepfake-звонков и социальной инженерии с использованием искусственного интеллекта.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="p-4 rounded-xl" style="background:rgba(255,255,255,0.02);border:1px dashed rgba(167,139,250,0.2);">
+        <div class="flex items-center gap-2 mb-2">
+          <i class="fa-solid fa-book-open text-[#a78bfa] text-sm"></i>
+          <span style="font-size:11px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">Инструкция в комплекте</span>
+        </div>
+        <ul class="sub-list">
+          <li style="--tw-before-color:#a78bfa;"><strong style="color:#94a3b8;">Digital Will:</strong> Полный план передачи доступа близким на случай чрезвычайной ситуации.</li>
+          <li><strong style="color:#94a3b8;">Recovery Guide:</strong> Пошаговая карта восстановления всей инфраструктуры с нуля.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── PACKAGE 4 ─── -->
+  <div class="pkg-card accent-amber mb-6">
+    <div class="pkg-header">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div class="pkg-number">ПАКЕТ 04</div>
+          <div class="pkg-title">«Цифровой Партизан»</div>
+          <div class="font-mono text-xs text-[#fbbf24] tracking-wider uppercase mb-2">Economy — $0 на железо</div>
+          <p class="pkg-subtitle max-w-lg">Для студентов, начинающих активистов, людей в сложной финансовой ситуации. Бюджет на железо: $0 — используем то, что уже есть у вас.</p>
+        </div>
+        <div class="icon-circle ic-amber" style="width:52px;height:52px;font-size:22px;border-radius:14px;">
+          <i class="fa-solid fa-person-running"></i>
+        </div>
+      </div>
+    </div>
+    <div class="pkg-body">
+      <div class="grid md:grid-cols-2 gap-x-8">
+        <div>
+          <div class="feature-row">
+            <div class="icon-circle ic-amber"><i class="fa-brands fa-linux"></i></div>
+            <div>
+              <p class="feature-title">1. Превращение ноутбука в защищённый</p>
+              <ul class="sub-list mt-1">
+                <li>Сносим Windows. Устанавливаем Linux (Debian или Linux Mint) с полным шифрованием диска (LUKS).</li>
+                <li>Защита трафика: настройка бесплатного сервера Oracle Cloud / Google Cloud (Free Tier) и поднятие личного VPN.</li>
+                <li>Браузер: LibreWolf + uBlock Origin + сокрытие WebRTC-утечек.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="icon-circle ic-amber"><i class="fa-brands fa-android"></i></div>
+            <div>
+              <p class="feature-title">2. Максимум из Android-смартфона</p>
+              <ul class="sub-list mt-1">
+                <li>ADB Debloating: через компьютер удаляем системные шпионские приложения Google и Facebook.</li>
+                <li>Изоляция: установка Shelter или Insular. Создание «Рабочего профиля» для WhatsApp, Instagram и банковских приложений с изоляцией от основных файлов и контактов.</li>
+                <li>DNS: настройка бесплатного NextDNS для блокировки рекламы и трекеров.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="feature-row">
+            <div class="icon-circle ic-amber"><i class="fa-solid fa-comment-dots"></i></div>
+            <div>
+              <p class="feature-title">3. Безопасная связь на существующем номере</p>
+              <ul class="sub-list mt-1">
+                <li>Перевод всех переписок в Signal и Session (работает без номера телефона).</li>
+                <li>Настройка двухэтапной аутентификации на Telegram с облачным паролем.</li>
+              </ul>
+            </div>
+          </div>
+          <!-- VPN Callout amber -->
+          <div class="vpn-callout" style="border-color:rgba(251,191,36,0.25);background:linear-gradient(135deg,rgba(251,191,36,0.06),rgba(251,191,36,0.03));">
+            <div class="vpn-callout-title" style="color:#fbbf24;"><i class="fa-solid fa-link-slash"></i> 4. Личный Double-VPN с обфускацией</div>
+            <p class="vpn-detail"><strong>Суть:</strong> Частная цепочка из двух независимых серверов в разных странах (Швейцария → Исландия).</p>
+            <p class="vpn-detail"><strong>Как работает:</strong> Первый сервер знает ваш IP, второй — ваш трафик. Это в 10 раз надёжнее публичных VPN.</p>
+            <p class="vpn-detail"><strong>Протоколы:</strong> WireGuard / VLESS / Shadowsocks. <strong>Kill Switch</strong> при разрыве. Результат: полная невидимость для провайдера.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<div class="divider mx-6 sm:mx-12"></div>
+
+
+<!-- ══════════════════════════════════ SPECIAL SOLUTIONS ════════════════════════════ -->
+<section id="special" class="px-6 sm:px-12 pb-24 max-w-7xl mx-auto">
+  <div class="mb-14">
+    <p class="section-tag"><i class="fa-solid fa-sliders mr-2"></i>Специальные решения</p>
+    <h2 class="section-h2">Если вы остаётесь на Windows / iOS</h2>
+    <p class="section-lead">Не готовы к радикальной смене устройств или ОС? Предлагаем услуги по «выжиманию» максимума безопасности из текущей техники.</p>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <!-- Windows -->
+    <div class="pkg-card accent-cyan">
+      <div class="pkg-header">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="icon-circle ic-cyan"><i class="fa-brands fa-windows"></i></div>
+          <div>
+            <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#22d3ee;">1. Windows</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#f1f5f9;">Если не хотите Linux</div>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-body">
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-broom"></i></div>
+          <div>
+            <p class="feature-title">Hardening ОС</p>
+            <p class="feature-desc">Удаление телеметрии и шпионских модулей через профессиональные утилиты: O&amp;O ShutUp10, Chris Titus Tech Tool.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-vault"></i></div>
+          <div>
+            <p class="feature-title">Шифрование данных: VeraCrypt</p>
+            <p class="feature-desc">Настройка VeraCrypt для создания зашифрованных контейнеров под важные документы.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-masks-theater"></i></div>
+          <div>
+            <p class="feature-title">Скрытая ОС (Plausible Deniability)</p>
+            <p class="feature-desc">Создание «двойного дна». Один пароль открывает обычную систему, второй — скрытую зашифрованную систему, наличие которой невозможно доказать.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          <div>
+            <p class="feature-title">Физический харденинг (DIY)</p>
+            <p class="feature-desc">Извлечение и отключение шлейфов микрофона и веб-камеры. Использование внешней USB-периферии вместо встроенной.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- iPhone -->
+    <div class="pkg-card accent-cyan">
+      <div class="pkg-header">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="icon-circle ic-cyan"><i class="fa-brands fa-apple"></i></div>
+          <div>
+            <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#22d3ee;">2. iPhone</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#f1f5f9;">Если не Pixel + GrapheneOS</div>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-body">
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-lock"></i></div>
+          <div>
+            <p class="feature-title">Lockdown Mode</p>
+            <p class="feature-desc">Глубокая настройка сверхзащищённого режима от Apple. Включение Lockdown Mode и Advanced Data Protection (E2EE для бэкапов iCloud).</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div>
+            <p class="feature-title">Advanced Data Protection: E2EE для iCloud</p>
+            <p class="feature-desc">Перевод iCloud на полное сквозное шифрование, чтобы даже Apple не имела доступа к вашим бэкапам.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <div>
+            <p class="feature-title">Privacy-аудит приложений</p>
+            <p class="feature-desc">Отключение рекламных идентификаторов, Apple Analytics и детальная настройка разрешений для каждого приложения.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-cyan" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-location-dot"></i></div>
+          <div>
+            <p class="feature-title">Очистка метаданных: GPS из фото</p>
+            <p class="feature-desc">Установка быстрых команд (Shortcuts) для автоматического удаления GPS-координат перед каждой отправкой фотографии.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android -->
+    <div class="pkg-card accent-green">
+      <div class="pkg-header">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="icon-circle ic-green"><i class="fa-brands fa-android"></i></div>
+          <div>
+            <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#10d9a0;">3. Android</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#f1f5f9;">Если не GrapheneOS</div>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-body">
+        <div class="feature-row">
+          <div class="icon-circle ic-green" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-trash"></i></div>
+          <div>
+            <p class="feature-title">ADB Debloating</p>
+            <p class="feature-desc">Удаление предустановленного «мусора» от производителя (Samsung, Xiaomi и т.д.), который нельзя удалить обычными средствами.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-green" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-shield"></i></div>
+          <div>
+            <p class="feature-title">DNS-over-TLS</p>
+            <p class="feature-desc">Принудительная маршрутизация DNS-запросов через защищённые серверы для сокрытия истории серфинга.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-green" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-location-crosshairs"></i></div>
+          <div>
+            <p class="feature-title">Location Spoofing</p>
+            <p class="feature-desc">Настройка системы для подмены GPS-координат, чтобы приложения видели «фейковое» местоположение.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tails -->
+    <div class="pkg-card accent-green">
+      <div class="pkg-header">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="icon-circle ic-green"><i class="fa-solid fa-usb-drive"></i></div>
+          <div>
+            <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:#10d9a0;">4. Tails OS</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#f1f5f9;">Компьютер в кармане</div>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-body">
+        <div class="feature-row">
+          <div class="icon-circle ic-green" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <p class="feature-title">Флешка анонимности: Tails OS</p>
+            <p class="feature-desc">Универсальное решение. Вы вставляете флешку в любой компьютер (Windows/Mac), работаете в абсолютно чистой среде через Tor, вынимаете флешку — и на компьютере не остаётся ни одного следа вашего присутствия.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="icon-circle ic-green" style="width:32px;height:32px;font-size:13px;border-radius:8px;"><i class="fa-solid fa-circle-nodes"></i></div>
+          <div>
+            <p class="feature-title">Весь трафик через Tor</p>
+            <p class="feature-desc">После выключения компьютера не остаётся ни единого следа: ни файлов, ни истории, ни cookie. Весь интернет-трафик идёт через сеть Tor.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="divider"></div>
+
+
+  <!-- ══════════════════════ ADDITIONAL HARDENING ══════════════════════ -->
+  <div class="mb-14">
+    <p class="section-tag"><i class="fa-solid fa-plus-circle mr-2"></i>Дополнительное усиление</p>
+    <h2 class="section-h2">Специальные решения</h2>
+    <p class="section-lead">Отдельные услуги, которые можно добавить к любому пакету или использовать самостоятельно.</p>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+
+    <!-- GPS Spoofing -->
+    <div class="special-block" style="border-radius:14px;padding:24px 26px;">
+      <div class="special-block-title text-base mb-3">
+        <div class="icon-circle ic-cyan"><i class="fa-solid fa-location-crosshairs"></i></div>
+        1. Полная подмена геолокации (GPS + IP + Radio Spoofing)
+      </div>
+      <p class="special-block-body mb-3">Создание «цифрового двойника» вашего устройства в другой точке мира. Фактически вы находитесь в Аргентине, но для всех сервисов, приложений (Uber, банки, карты) и систем слежки ваше устройство находится, например, в Швейцарии или Исландии.</p>
+      <p class="special-block-body mb-3"><strong>Что делаем:</strong> Аппаратно-программный комплекс подмены координат. В отличие от обычных приложений, это решение подменяет данные на уровне системы (Mock Locations + системный харденинг).</p>
+      <div class="grid grid-cols-3 gap-2 mt-3">
+        <div class="text-center p-2 rounded-lg" style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.15);">
+          <div class="text-xs text-[#22d3ee] font-mono mb-1">IP</div>
+          <div class="text-xs text-slate-400">Трафик через выбранную страну</div>
+        </div>
+        <div class="text-center p-2 rounded-lg" style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.15);">
+          <div class="text-xs text-[#22d3ee] font-mono mb-1">GPS</div>
+          <div class="text-xs text-slate-400">Ложные координаты для ОС</div>
+        </div>
+        <div class="text-center p-2 rounded-lg" style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.15);">
+          <div class="text-xs text-[#22d3ee] font-mono mb-1">Radio</div>
+          <div class="text-xs text-slate-400">Скрытие реальных вышек и Wi-Fi</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workstation -->
+    <div class="special-block" style="border-radius:14px;padding:24px 26px;">
+      <div class="special-block-title text-base mb-3">
+        <div class="icon-circle ic-violet"><i class="fa-solid fa-laptop-code"></i></div>
+        2. Ультимативный харденинг ноутбука (Workstation Hardening)
+      </div>
+      <p class="special-block-body mb-3">Превращаем обычный ноутбук в цифровую крепость, защищённую от физического взлома, кражи данных и скрытого шпионажа.</p>
+      <ul class="sub-list">
+        <li><strong style="color:#94a3b8;">ОС и изоляция:</strong> Qubes OS или Hardened Debian с AppArmor/SELinux.</li>
+        <li><strong style="color:#94a3b8;">Прошивка:</strong> Coreboot/Libreboot + Measured Boot (TPM 2.0) + собственные ключи Secure Boot.</li>
+        <li><strong style="color:#94a3b8;">Порты:</strong> USBGuard + физическое отключение камеры и микрофона на аппаратном уровне.</li>
+        <li><strong style="color:#94a3b8;">Шифрование:</strong> LUKS2 AES-XTS-256. Ключ — на YubiKey/Nitrokey. Без ключа данные — цифровой мусор.</li>
+      </ul>
+    </div>
+
+    <!-- Acoustic -->
+    <div class="special-block" style="border-radius:14px;padding:24px 26px;">
+      <div class="special-block-title text-base mb-3">
+        <div class="icon-circle ic-green"><i class="fa-solid fa-ear-deaf"></i></div>
+        3. Акустическая защита (Анти-прослушка)
+      </div>
+      <p class="special-block-body mb-2"><strong>Блокираторы микрофона (Mic Lock):</strong> Использование физических заглушек для порта 3.5mm или программных Kill-свитчей. Система «думает», что подключена внешняя гарнитура без микрофона — это аппаратно блокирует возможность записи звука встроенными микрофонами смартфона или ноутбука.</p>
+      <p class="special-block-body"><strong>Защита от ультразвукового трекинга:</strong> Блокировка частот, на которых работают маркетинговые маячки, передающие скрытые сигналы между телевизором и вашим смартфоном.</p>
+    </div>
+
+    <!-- Metadata -->
+    <div class="special-block" style="border-radius:14px;padding:24px 26px;">
+      <div class="special-block-title text-base mb-3">
+        <div class="icon-circle ic-amber"><i class="fa-solid fa-broom"></i></div>
+        4. Автоматизация очистки метаданных (Deep Metadata Scrubbing)
+      </div>
+      <p class="special-block-body mb-2"><strong>Для Mobile:</strong> Настройка автоматического удаления всех данных (GPS, дата, модель устройства) при каждом сохранении или отправке фото.</p>
+      <p class="special-block-body"><strong>Для Desktop:</strong> Настройка «Hot Folder» через утилиту MAT2. Любой документ (PDF, DOCX) или картинка, попавшие в эту папку, мгновенно становятся анонимными — все скрытые метаданные уничтожаются автоматически.</p>
+    </div>
+
+    <!-- Identity Masking -->
+    <div class="special-block" style="border-radius:14px;padding:24px 26px;">
+      <div class="special-block-title text-base mb-3">
+        <div class="icon-circle ic-rose"><i class="fa-solid fa-user-ninja"></i></div>
+        5. Маскировка личности (Email &amp; Identity Masking)
+      </div>
+      <p class="special-block-body">Внедрение системы <strong>SimpleLogin / AnonAddy</strong>. Вы больше не светите реальный e-mail нигде. Для каждого сайта создаётся уникальный псевдоним, который пересылает письма вам. Это разрывает связь между всеми вашими аккаунтами — даже если одна учётная запись будет скомпрометирована, остальные останутся нетронутыми.</p>
+    </div>
+
+    <!-- Double VPN standalone -->
+    <div class="special-block" style="border-radius:14px;padding:24px 26px;border-color:rgba(16,217,160,0.25);">
+      <div class="special-block-title text-base mb-3">
+        <div class="icon-circle ic-green"><i class="fa-solid fa-link-slash"></i></div>
+        6. Личный Double-VPN с обфускацией
+      </div>
+      <p class="vpn-detail mb-2"><strong>Суть:</strong> Частная цепочка из двух независимых серверов в разных странах (напр. Швейцария → Исландия).</p>
+      <p class="vpn-detail mb-2"><strong>Как работает:</strong> Первый сервер знает ваш IP, второй — ваш трафик. Ни один из них не обладает полной информацией о вас. Это в 10 раз надёжнее публичных VPN.</p>
+      <p class="vpn-detail mb-2"><strong>Обфускация:</strong> Маскировка трафика под обычный HTTPS (провайдер видит «просмотр YouTube», а не VPN).</p>
+      <p class="vpn-detail mb-2"><strong>Kill Switch:</strong> Моментальная блокировка интернета при разрыве соединения.</p>
+      <p class="vpn-detail"><strong>Технологии:</strong> Аренда личных VPS, протоколы WireGuard / VLESS / Shadowsocks. Результат: полная невидимость для провайдера и защита от деанонимизации.</p>
+    </div>
+  </div>
+</section>
+
+
+<div class="divider mx-6 sm:mx-12"></div>
+
+
+<!-- ══════════════════════════════════ COMMITMENTS ═══════════════════════════════════ -->
+<section class="px-6 sm:px-12 pb-24 max-w-7xl mx-auto">
+  <div class="mb-12">
+    <p class="section-tag"><i class="fa-solid fa-handshake mr-2"></i>Что входит в обязательства</p>
+    <h2 class="section-h2">Сервис и поддержка</h2>
+    <p class="section-lead">Каждый клиент получает полный цикл сопровождения — от закупки железа до обучения работе с новой инфраструктурой.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="commit-card">
+      <div class="commit-num">01</div>
+      <div>
+        <p class="commit-title">Закупка и подготовка техники</p>
+        <p class="commit-desc">Вы покупаете «чистое» железо, я его прошиваю и настраиваю под ваши задачи и профиль угроз.</p>
+      </div>
+    </div>
+    <div class="commit-card">
+      <div class="commit-num">02</div>
+      <div>
+        <p class="commit-title">Персональный сервер</p>
+        <p class="commit-desc">Развёртывание инфраструктуры VPN / Облака / Matrix на выбранном хостинге с нуля.</p>
+      </div>
+    </div>
+    <div class="commit-card">
+      <div class="commit-num">03</div>
+      <div>
+        <p class="commit-title">Обучение (2–4 часа)</p>
+        <p class="commit-desc">Личный инструктаж по использованию новой техники и формированию правильных привычек цифровой безопасности (OpSec).</p>
+      </div>
+    </div>
+    <div class="commit-card">
+      <div class="commit-num">04</div>
+      <div>
+        <p class="commit-title">Техническая поддержка (1 месяц)</p>
+        <p class="commit-desc">Оперативные ответы на вопросы и корректировка настроек в течение месяца после внедрения.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ PROCESS SECTION ═══════════════════════════════════ -->
+<section id="process" class="px-6 py-20 max-w-7xl mx-auto border-t border-white/[0.03]">
+    <div class="mb-12">
+        <p class="section-tag"><i class="fa-solid fa-microchip mr-2"></i>Workflow</p>
+        <h2 class="section-h2">Как строится ваша защита</h2>
+        <p class="section-lead text-sm sm:text-base">Алгоритм внедрения OpSec: от первичного анализа до полной автономности.</p>
+    </div>
+
+    <!-- Grid: 1 col on mobile, 2 on tablet, 4 on desktop -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8">
+        <!-- Step 1 -->
+        <div class="relative group">
+            <div class="mb-5 flex items-end gap-3">
+                <span class="font-display font-black text-5xl text-white/10 group-hover:text-accent/20 transition-colors leading-none">01</span>
+                <div class="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+                    <i class="fa-solid fa-shield"></i>
+                </div>
+            </div>
+            <h3 class="font-display font-bold text-lg text-white mb-2">Аудит и Риски</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">Анализируем ваш цифровой след и выявляем уязвимые точки. Формируем индивидуальную модель угроз.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative group">
+            <div class="mb-5 flex items-end gap-3">
+                <span class="font-display font-black text-5xl text-white/10 group-hover:text-cyan-400/20 transition-colors leading-none">02</span>
+                <div class="w-10 h-10 rounded-xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                </div>
+            </div>
+            <h3 class="font-display font-bold text-lg text-white mb-2">Проектирование</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">Выбор архитектуры сети (VLAN, VPN) и оборудования (Pixel, MikroTik) под ваши задачи.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative group">
+            <div class="mb-5 flex items-end gap-3">
+                <span class="font-display font-black text-5xl text-white/10 group-hover:text-violet-400/20 transition-colors leading-none">03</span>
+                <div class="w-10 h-10 rounded-xl bg-violet-400/10 border border-violet-400/20 flex items-center justify-center text-violet-400">
+                    <i class="fa-solid fa-terminal"></i>
+                </div>
+            </div>
+            <h3 class="font-display font-bold text-lg text-white mb-2">Развертывание</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">Прошивка устройств, настройка личных серверов, Matrix и шифрованных облачных хранилищ.</p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="relative group">
+            <div class="mb-5 flex items-end gap-3">
+                <span class="font-display font-black text-5xl text-white/10 group-hover:text-amber-400/20 transition-colors leading-none">04</span>
+                <div class="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+            </div>
+            <h3 class="font-display font-bold text-lg text-white mb-2">Передача ключей</h3>
+            <p class="text-sm text-slate-500 leading-relaxed">Финальное обучение, передача Hardware-ключей и Recovery Guide для полной автономности.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════ CONTACT SECTION ══════════════════════════════════════ -->
+<section id="contact" class="px-6 py-24 bg-slate-950 relative overflow-hidden">
+    <div class="contact-grid-bg"></div>
+    
+    <div class="max-w-3xl mx-auto relative z-10 text-center">
+        <p class="section-tag">Contact</p>
+        <h2 class="section-h2">Начать проект</h2>
+        <p class="text-slate-500 mb-12 max-w-md mx-auto text-sm sm:text-base">Выберите удобный защищенный канал связи для первичной консультации и аудита.</p>
+        
+        <!-- Action Buttons Container -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-stretch">
+            
+            <!-- Telegram Button -->
+            <a href="https://t.me/your_handle" target="_blank" class="flex-1 flex items-center justify-center gap-4 p-5 rounded-2xl bg-[#10d9a0]/5 border border-[#10d9a0]/20 hover:bg-[#10d9a0]/10 hover:border-[#10d9a0]/50 transition-all group">
+                <div class="w-12 h-12 rounded-xl bg-[#10d9a0]/10 flex items-center justify-center text-[#10d9a0] group-hover:scale-110 transition-transform">
+                    <i class="fa-brands fa-telegram text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <span class="block font-mono text-[10px] uppercase tracking-widest text-[#10d9a0]/60">Secure Chat</span>
+                    <p class="text-white font-bold text-lg">Telegram</p>
+                </div>
+            </a>
+
+            <!-- Email Button -->
+            <a href="mailto:secure@example.com" class="flex-1 flex items-center justify-center gap-4 p-5 rounded-2xl bg-cyan-400/5 border border-cyan-400/20 hover:bg-cyan-400/10 hover:border-cyan-400/50 transition-all group">
+                <div class="w-12 h-12 rounded-xl bg-cyan-400/10 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-envelope text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <span class="block font-mono text-[10px] uppercase tracking-widest text-cyan-400/60">Encrypted</span>
+                    <p class="text-white font-bold text-lg">E-mail</p>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Security Disclaimer -->
+        <div class="mt-12 p-6 rounded-2xl border border-dashed border-white/5 max-w-lg mx-auto">
+            <p class="text-[10px] sm:text-[11px] text-slate-600 leading-relaxed font-mono uppercase tracking-tight">
+                * Рекомендуется использование VPN при первом контакте. <br class="hidden sm:block"> Все сообщения удаляются после обработки вашей заявки.
+            </p>
+        </div>
+    </div>
+</section>
+<!-- ══════════════════════════════════ FOOTER ══════════════════════════════════════ -->
+<footer class="footer px-6 sm:px-12 py-12">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+    <div>
+     
+      <div class="text-xs mt-1" style="color:#334155;font-family:'IBM Plex Mono',monospace;">персональная кибербезопасность · конфиденциальность гарантирована</div>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="badge badge-cyan"><i class="fa-solid fa-map-marker-alt text-[9px]"></i> Worldwide</span>
+      <span class="badge"><i class="fa-solid fa-shield-halved text-[9px]"></i> Индивидуальный подход</span>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto mt-8 pt-6 border-t border-white/[0.04]">
+    <p class="text-xs" style="color:#1e293b;">
+      Представленные пакеты являются готовыми сбалансированными решениями. Вы можете составить свой собственный набор услуг или комбинировать элементы разных пакетов в зависимости от ваших задач. Конфигурация подбирается специально под ваш профиль угроз.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
